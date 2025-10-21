@@ -1,0 +1,24 @@
+﻿@using WebATB.Models.Category
+@model CategoryCreateModel
+
+<h1 class="text-center">Додати категорію</h1>
+
+<form asp-action="Create"
+      class="col-md-6 offset-md-3"
+      method="post"
+      enctype="multipart/form-data">
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control">
+        @* <input type="text"  class="form-control" id="Name" name="Name"> *@
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Image" class="form-label"></label>
+        <input asp-for="Image" class="form-control" accept="image/*">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Додати</button>
+</form>

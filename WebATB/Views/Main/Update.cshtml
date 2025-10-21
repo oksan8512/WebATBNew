@@ -1,0 +1,53 @@
+﻿@using WebATB.Models.Category
+@model CategoryUpdateModel
+
+<h1 class="text-center">Оновити категорію</h1>
+
+<form asp-action="Update"
+      class="col-md-6 offset-md-3"
+      method="post"
+      enctype="multipart/form-data">
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control">
+        @* <input type="text"  class="form-control" id="Name" name="Name"> *@
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="mb-3">
+                <img src="@Model.Image" id="image" alt="" width="120" />
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="mb-3">
+                <label asp-for="ImageFile" class="form-label"></label>
+                <input asp-for="ImageFile" class="form-control" accept="image/*">
+            </div>
+        </div>
+    </div>
+
+
+
+    <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+          const imageInput = document.getElementById('ImageFile');
+          imageInput.addEventListener('change', function(event) {
+              const file = event.target.files[0];
+              if (!file) {
+                  return;
+              }
+              document.getElementById("image").src = URL.createObjectURL(file);
+         });
+
+        });
+
+    </script>
+}

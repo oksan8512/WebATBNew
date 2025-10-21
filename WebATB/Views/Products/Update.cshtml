@@ -1,0 +1,185 @@
+﻿@model ProductUpdateModel
+
+<h1 class="text-center mt-2">Редагування продукту</h1>
+
+<form asp-action="Update"
+      class="col-md-6 offset-md-3"
+      method="post"
+      enctype="multipart/form-data">
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control">
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Price" class="form-label"></label>
+        <input asp-for="Price" class="form-control">
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description">
+          
+        </textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CategoryId" class="form-label"></label>
+        <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(Model.Categories, "Id", "Name"))">
+            <option value="0">--- Оберіть категорію ---</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+
+    @* <div class="mb-3">
+        <label asp-for="Images" class="form-label"></label>
+        <input asp-for="Images" class="form-control">
+        <span asp-validation-for="Images" class="text-danger"></span>
+    </div> *@
+
+    <div class="mb-3">
+        <div style="cursor: pointer" class="col-12 border border-success border-dashed p-4 rounded text-center position-relative">
+            <input style="cursor: pointer" type="file" id="fileInput" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" accept="image/*" multiple />
+            <span class="text-muted">Перетягніть або вибаріть фотограції</span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <div id="imageList" class="col-12 row row-cols-2 row-cols-md-4 g-3 mt-2">
+            @foreach (var image in Model.Images)
+            {
+                <div class="col" bis_skin_checked="1">
+                    <div class="position-relative" bis_skin_checked="1">
+                        <img src="@image" class="img-fluid rounded border" alt="Preview" style="height: 100px; object-fit: cover;">
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle" onclick="this.closest('.col').remove()">×</button>
+                        <input type="hidden" name="images[]" value="">
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Зберегти</button>
+</form>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+    <script src="https://cdn.tiny.cloud/1/zpmlrk6b8dajrzn3jd7pr0fmbi7upmbpv2cmrou2c0x68zzm/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
+
+    <script>
+        tinymce.init({
+          selector: 'textarea',
+          plugins: [
+            // Core editing features
+            'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount',
+            // Your account includes a free trial of TinyMCE premium features
+            // Try the most popular premium features until Sep 23, 2025:
+            'checklist', 'mediaembed', 'casechange', 'formatpainter', 'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'advtemplate', 'ai', 'uploadcare', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss', 'markdown','importword', 'exportword', 'exportpdf'
+          ],
+          toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography uploadcare | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+          tinycomments_mode: 'embedded',
+          tinycomments_author: 'Author name',
+          mergetags_list: [
+            { value: 'First.Name', title: 'First Name' },
+            { value: 'Email', title: 'Email' },
+          ],
+          ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
+          uploadcare_public_key: 'd6aba277e6e001b5e976',
+        });
+    </script>
+
+    <script>
+          //коли завантажилася сторінка
+
+          const imageList = document.getElementById('imageList');
+
+          new Sortable(imageList, {
+              animation: 150,
+              ghostClass: 'bg-light',
+            });
+
+          document.addEventListener('DOMContentLoaded', function()
+          {
+              //
+            const imageInput = document.getElementById('fileInput');
+            imageInput.addEventListener('change', function(event)
+            {
+                const files = event.target.files;
+                if (!files || files.length === 0)
+                {
+                      return;
+                }
+                for (let i = 0; i < files.length; i++)
+                {
+                    const file = files[i];
+
+                    const reader = new FileReader();
+
+                    reader.onload = function(e)
+                    {
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = 'images[]';
+                        hiddenInput.value = e.target.result; // base64 string
+
+                        const col = document.createElement('div');
+                        col.className = 'col';
+
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'position-relative';
+
+                        const img = document.createElement('img');
+                        img.src = URL.createObjectURL(file);
+                        img.className = 'img-fluid rounded border';
+                        img.style.height = '100px';
+                        img.style.objectFit = 'cover';
+                        img.alt = 'Preview';
+
+                        const removeBtn = document.createElement('button');
+                        removeBtn.type = 'button';
+                        removeBtn.className = 'btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle';
+                        removeBtn.innerHTML = '&times;';
+                        removeBtn.addEventListener('click', () => col.remove());
+
+
+                        wrapper.appendChild(img);
+                        wrapper.appendChild(removeBtn);
+                        wrapper.appendChild(hiddenInput);
+                        col.appendChild(wrapper);
+                        imageList.appendChild(col);
+                        // document.querySelector('form').appendChild(hiddenInput);
+                    };
+
+                    reader.readAsDataURL(file);
+                    // console.log(file);
+                }
+           });
+
+        });
+
+
+
+        window.addEventListener("DOMContentLoaded", async () => {
+            const items = document.querySelectorAll(".col");
+            for (const item of items) {
+                const img = item.querySelector("img");
+                const input = item.querySelector("input[name='images[]']");
+
+                const response = await fetch(img.src);
+                const blob = await response.blob();
+
+                const reader = new FileReader();
+                const base64 = await new Promise(resolve => {
+                    reader.onloadend = () => resolve(reader.result.split(",")[1]);
+                    reader.readAsDataURL(blob);
+                });
+
+                input.value = base64;
+            }
+        });
+    </script>
+}
