@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using System.Security.Principal;
 using WebATB.Data;
 using WebATB.Data.Entities.Idenity;
 using WebATB.Extensions;
@@ -37,29 +39,25 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
 }
+
+app.UseStaticFiles(); // ⬅️ Статичні файли ПЕРЕД routing
+
 app.UseRouting();
 
-app.UseAuthorization();
+app.UseAuthentication(); // ⬅️ 1. Спочатку автентифікація
+app.UseAuthorization();  // ⬅️ 2. Потім авторизація
 
-app.MapStaticAssets();
-
-
-
-
-//������� ������������� �� ������������
-
-
+// Ваші маршрути тут...
 app.MapAreaControllerRoute(
     name: "MyAreaAdmin",
     areaName: "Admin",
     pattern: "admin/{controller=Home}/{action=Index}/{id?}");
-//.RequireAuthorization("AdminOnly");
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Main}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Main}/{action=Index}/{id?}");
 
+// ⬇️ Додаткові статичні файли для images/avatars ПІСЛЯ MapControllerRoute
 Dictionary<string, string> imageSizes = new()
 {
     { "ImagesDir", "images" },
@@ -69,10 +67,9 @@ Dictionary<string, string> imageSizes = new()
 foreach (var (key, value) in imageSizes)
 {
     var dirName = builder.Configuration.GetValue<string>(key) ?? value;
-
     var dir = Path.Combine(Directory.GetCurrentDirectory(), dirName);
     Directory.CreateDirectory(dir);
-    //���������� ������ �� ����� � ����� images �� ����� /images
+
     app.UseStaticFiles(new StaticFileOptions
     {
         FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(dir),
@@ -81,5 +78,4 @@ foreach (var (key, value) in imageSizes)
 }
 
 await app.SeedDataAsync();
-
 app.Run();

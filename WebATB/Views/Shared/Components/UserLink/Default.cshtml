@@ -1,12 +1,40 @@
-﻿@using WebATB.Models.Account
-@model UserLinkViewModel
+﻿@model WebATB.Models.Account.UserLinkViewModel
 
-<li class="nav-item">
-    <a class="nav-link"
-       asp-action="Profile"
-       asp-controller="Account">
-        <img src="/images/50_@Model.Image" alt="@Model.Name"
-             style="height: 32px !important; width: 32px !important;" />
-        @Model.Name
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle d-flex align-items-center"
+       href="#"
+       id="userDropdown"
+       role="button"
+       data-bs-toggle="dropdown"
+       aria-expanded="false">
+        @if (!string.IsNullOrEmpty(Model.Image) && Model.Image != "noimage.png")
+        {
+            <img src="/avatars/50_@Model.Image"
+                 alt="@Model.Name"
+                 class="rounded-circle me-2"
+                 style="width: 35px; height: 35px; object-fit: cover; border: 2px solid #fff;"
+                 onerror="this.onerror=null; this.src='/images/noimage.png';">
+        }
+        else
+        {
+            <img src="/images/noimage.png"
+                 alt="Без фото"
+                 class="rounded-circle me-2"
+                 style="width: 35px; height: 35px; object-fit: cover; border: 2px solid #fff;">
+        }
+        <span class="text-white">@Model.Name</span>
     </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+        <li>
+            <a class="dropdown-item" asp-controller="Account" asp-action="EditProfileView">
+                <i class="bi bi-person-circle me-2"></i>Мій профіль
+            </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+            <a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout">
+                <i class="bi bi-box-arrow-right me-2"></i>Вихід
+            </a>
+        </li>
+    </ul>
 </li>

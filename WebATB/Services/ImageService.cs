@@ -39,8 +39,7 @@ public class ImageService(IConfiguration configuration) : IImageService
         using MemoryStream ms = new();
         await file.CopyToAsync(ms);
         var bytes = ms.ToArray();
-
-        var imageName = await SaveImageAsync(bytes);
+        var imageName = await SaveImageAsync(bytes, options); 
         return imageName;
     }
 
@@ -55,8 +54,7 @@ public class ImageService(IConfiguration configuration) : IImageService
         return imageName;
     }
 
-    private async Task<string> SaveImageAsync(byte[] bytes,
-        string options = "ImagesDir")
+    private async Task<string> SaveImageAsync(byte[] bytes, string options = "ImagesDir")
     {
         string imageName = Guid.NewGuid().ToString() + ".webp";
         var sizes = configuration.GetRequiredSection("ImageSizes").Get<List<int>>();
@@ -64,13 +62,14 @@ public class ImageService(IConfiguration configuration) : IImageService
         {
             sizes = new List<int> { 256, 512, 1024 };
         }
+
         Task[] tasks = sizes
             .AsParallel()
-            .Select(s => SaveImageAsync(bytes, imageName, s))
+            .Select(s => SaveImageAsync(bytes, imageName, s, options)) 
             .ToArray();
+
         await Task.WhenAll(tasks);
         return imageName;
-
     }
 
     /// <summary>

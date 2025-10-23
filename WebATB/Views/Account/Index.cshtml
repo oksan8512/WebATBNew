@@ -1,0 +1,98 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using WebATB.Data.Entities.Idenity
+@inject UserManager<UserEntity> UserManager
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user is not null ? await UserManager.GetRolesAsync(user) : new List<string>();
+
+    <div class="card shadow-sm ">
+        <div class="card-body m-xxl-5 ">
+            <div class="d-flex flex-column flex-md-row gap-4">
+                <div class="text-center">
+                    @if (!string.IsNullOrEmpty(user?.Image))
+                    {
+                        <img width="150"
+                             height="150"
+                             class="rounded-circle object-fit-cover mb-5"
+                             src="/avatars/1200_@user.Image"
+                             alt="Аватар @user.FirstName @user.LastName" />
+                    }
+                    else
+                    {
+                        <img width="150"
+                             height="150"
+                             class="rounded-circle object-fit-cover mb-5"
+                             src="/no-image-icon.png"
+                             alt="Аватар відсутній" />
+                    }
+                    <div class="d-grid gap-2">
+                        <a asp-action="EditProfileView" asp-controller="Account" method="get" class="btn btn-outline-primary">
+                            <i class="bi bi-pencil"></i> Редагувати профіль
+                        </a>
+                        <form asp-action="Logout" asp-controller="Account" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-light btn-sm nav-btn">Вихід</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="flex-grow-1 align-self-center">
+                    <h4 class="mb-3">Інформація про користувача</h4>
+                    <div class="mb-2">
+                        <strong>Ім'я:</strong>
+                        <span class="text-muted">@(user?.FirstName ?? "Не вказано")</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Прізвище:</strong>
+                        <span class="text-muted">@(user?.LastName ?? "Не вказано")</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Електронна пошта:</strong>
+                        <span class="text-muted">@user?.Email</span>
+                        @if (user?.EmailConfirmed == true)
+                        {
+                            <span class="badge bg-success ms-2">
+                                <i class="bi bi-check-circle"></i> Підтверджено
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning ms-2">
+                                <i class="bi bi-exclamation-circle"></i> Не підтверджено
+                            </span>
+                        }
+                    </div>
+                    @if (roles?.Count > 0)
+                    {
+                        <div class="mb-2">
+                            <strong>Ролі:</strong>
+                            <div class="mt-1">
+                                @foreach (var role in roles)
+                                {
+                                    <span class="badge bg-primary me-1">@role</span>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center py-4">
+        <p class="mb-3">Для доступу до всіх можливостей сайту, будь ласка, увійдіть або зареєструйтеся</p>
+        <div class="d-inline-flex gap-2">
+            <a asp-controller="Account" asp-action="Login" class="btn btn-success">
+                <i class="bi bi-box-arrow-in-right"></i> Вхід
+            </a>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-warning">
+                <i class="bi bi-person-plus"></i> Реєстрація
+            </a>
+        </div>
+    </div>
+}

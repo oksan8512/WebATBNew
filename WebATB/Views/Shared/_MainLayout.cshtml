@@ -34,20 +34,18 @@
                     {
                         <ul class="navbar-nav">
                             @await Component.InvokeAsync("UserLink")
-
-                            <li class="nav-item">
-                                <a class="nav-link" asp-action="Logout"
-                                   asp-controller="Account">Вихід</a>
-                            </li>
                         </ul>
                     }
                     else
                     {
-
                         <ul class="navbar-nav">
                             <li class="nav-item">
                                 <a class="nav-link" asp-action="Register"
                                    asp-controller="Account">Реєстрація</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-action="Login"
+                                   asp-controller="Account">Вхід</a>
                             </li>
                         </ul>
                     }

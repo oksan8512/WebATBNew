@@ -10,6 +10,7 @@ public class AccoutMapper : Profile
         CreateMap<RegisterViewModel, UserEntity>()
             .ForMember(x => x.UserName, opt => opt.MapFrom(x => x.Email))
             .ForMember(x => x.Image, opt => opt.Ignore());
+            
 
         CreateMap<UserEntity, UserLinkViewModel>()
             .ForMember(x => x.Name, opt =>

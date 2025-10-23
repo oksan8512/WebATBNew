@@ -4,24 +4,30 @@ using Microsoft.AspNetCore.Mvc;
 using WebATB.Data.Entities.Idenity;
 using WebATB.Models.Account;
 
-namespace WebATB.ViewComponents;
-
-public class UserLinkViewComponent(UserManager<UserEntity> userManager,
-    IMapper mapper) : ViewComponent
+namespace WebATB.ViewComponents
 {
-    public IViewComponentResult Invoke()
+    public class UserLinkViewComponent : ViewComponent
     {
-        var userName = User.Identity?.Name;
-        var model = new UserLinkViewModel();
+        private readonly UserManager<UserEntity> _userManager;
+        private readonly IMapper _mapper;
 
-        if (userName != null)
+        public UserLinkViewComponent(UserManager<UserEntity> userManager, IMapper mapper)
         {
-            var user = userManager.FindByNameAsync(userName).Result;
-            if (user != null)
-            {
-                model = mapper.Map<UserLinkViewModel>(user);
-            }
+            _userManager = userManager;
+            _mapper = mapper;
         }
-        return View(model);
+
+        public async Task<IViewComponentResult> InvokeAsync()
+        {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+
+            if (user == null)
+            {
+                return Content(string.Empty);
+            }
+
+            var model = _mapper.Map<UserLinkViewModel>(user);
+            return View(model);
+        }
     }
 }
