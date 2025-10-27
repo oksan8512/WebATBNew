@@ -16,25 +16,25 @@
                         <img width="150"
                              height="150"
                              class="rounded-circle object-fit-cover mb-5"
-                             src="/avatars/1200_@user.Image"
-                             alt="Аватар @user.FirstName @user.LastName" />
+                             src="/avatars/150_@user.Image"
+                             alt="Аватар @user.FirstName @user.LastName"
+                             onerror="this.onerror=null; this.src='/images/noimage.png';" />
                     }
                     else
                     {
                         <img width="150"
                              height="150"
                              class="rounded-circle object-fit-cover mb-5"
-                             src="/no-image-icon.png"
+                             src="/images/noimage.png"
                              alt="Аватар відсутній" />
                     }
                     <div class="d-grid gap-2">
-                        <a asp-action="EditProfileView" asp-controller="Account" method="get" class="btn btn-outline-primary">
+                        <a asp-action="EditProfileView" asp-controller="Account" class="btn btn-outline-primary">
                             <i class="bi bi-pencil"></i> Редагувати профіль
                         </a>
-                        <form asp-action="Logout" asp-controller="Account" method="post" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-outline-light btn-sm nav-btn">Вихід</button>
-                        </form>
+                        <a asp-action="Logout" asp-controller="Account" class="btn btn-outline-danger">
+                            <i class="bi bi-box-arrow-right"></i> Вихід
+                        </a>
                     </div>
                 </div>
 
@@ -76,7 +76,6 @@
                             </div>
                         </div>
                     }
-
                 </div>
             </div>
         </div>

@@ -30,40 +30,29 @@
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                         <div class="text-center mb-4">
-                            @if (!string.IsNullOrEmpty(Model.CurrentImage))
-                            {
-                                <img src="/avatars/256_@Model.CurrentImage"
-                                     alt="Поточне фото"
-                                     class="rounded-circle mb-3"
-                                     style="width: 150px; height: 150px; object-fit: cover;"
-                                     id="currentImage" />
+                            @{
+                                var imageSrc = !string.IsNullOrEmpty(Model.CurrentImage)
+                                ? $"/avatars/150_{Model.CurrentImage}"
+                                : "/images/noimage.png";
                             }
-                            else
-                            {
-                                <img src="/images/noimage.png"
-                                     alt="Немає фото"
-                                     class="rounded-circle mb-3"
-                                     style="width: 150px; height: 150px; object-fit: cover;"
-                                     id="currentImage" />
-                            }
+                            <img src="@imageSrc"
+                                 alt="Поточне фото"
+                                 class="rounded-circle mb-3"
+                                 style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #dee2e6;"
+                                 id="currentImage"
+                                 onerror="this.onerror=null; this.src='/images/noimage.png';" />
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="FirstName" class="form-label"></label>
-                            <input asp-for="FirstName" class="form-control" />
+                            <input asp-for="FirstName" class="form-control" placeholder="Введіть ім'я" />
                             <span asp-validation-for="FirstName" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="LastName" class="form-label"></label>
-                            <input asp-for="LastName" class="form-control" />
+                            <input asp-for="LastName" class="form-control" placeholder="Введіть прізвище" />
                             <span asp-validation-for="LastName" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Email" class="form-label"></label>
-                            <input asp-for="Email" class="form-control" readonly />
-                            <div class="form-text">Email не можна змінити</div>
                         </div>
 
                         <div class="mb-3">
@@ -74,14 +63,17 @@
                                    accept="image/*"
                                    id="imageInput" />
                             <span asp-validation-for="Image" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                Підтримувані формати: JPG, PNG, GIF
+                            </small>
                         </div>
 
                         <div class="d-grid gap-2 mb-3">
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="bi bi-save"></i> Зберегти зміни
                             </button>
-                            <a asp-action="Index" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Назад до профілю
+                            <a asp-action="Index" asp-controller="Main" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> На головну
                             </a>
                         </div>
                     </form>
@@ -98,13 +90,31 @@
         document.getElementById('imageInput')?.addEventListener('change', function (e) {
             const file = e.target.files[0];
             if (file) {
+                // Перевірка типу файлу
+                if (!file.type.startsWith('image/')) {
+                    alert('Будь ласка, виберіть файл зображення!');
+                    this.value = '';
+                    return;
+                }
+
                 const reader = new FileReader();
                 reader.onload = function (event) {
                     const img = document.getElementById('currentImage');
-                    if (img) img.src = event.target.result;
+                    if (img) {
+                        img.src = event.target.result;
+                    }
                 };
                 reader.readAsDataURL(file);
             }
         });
+
+        // Автоматичне приховування повідомлень через 5 секунд
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
     </script>
 }

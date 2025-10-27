@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
-using System.Security.Principal;
 using WebATB.Data;
 using WebATB.Data.Entities.Idenity;
 using WebATB.Extensions;
@@ -29,7 +27,6 @@ builder.Services.AddIdentity<UserEntity, RoleEntity>(options =>
     .AddDefaultTokenProviders();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
 builder.Services.AddScoped<IImageService, ImageService>();
 
 var app = builder.Build();
@@ -40,24 +37,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
 }
 
-app.UseStaticFiles(); // ⬅️ Статичні файли ПЕРЕД routing
-
-app.UseRouting();
-
-app.UseAuthentication(); // ⬅️ 1. Спочатку автентифікація
-app.UseAuthorization();  // ⬅️ 2. Потім авторизація
-
-// Ваші маршрути тут...
-app.MapAreaControllerRoute(
-    name: "MyAreaAdmin",
-    areaName: "Admin",
-    pattern: "admin/{controller=Home}/{action=Index}/{id?}");
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Main}/{action=Index}/{id?}");
-
-// ⬇️ Додаткові статичні файли для images/avatars ПІСЛЯ MapControllerRoute
+// ⬇️ СПОЧАТКУ створюємо папки для зображень
 Dictionary<string, string> imageSizes = new()
 {
     { "ImagesDir", "images" },
@@ -69,6 +49,16 @@ foreach (var (key, value) in imageSizes)
     var dirName = builder.Configuration.GetValue<string>(key) ?? value;
     var dir = Path.Combine(Directory.GetCurrentDirectory(), dirName);
     Directory.CreateDirectory(dir);
+}
+
+// ⬇️ ПОТІМ налаштовуємо статичні файли
+app.UseStaticFiles(); // wwwroot
+
+// Додаткові статичні файли для images та avatars
+foreach (var (key, value) in imageSizes)
+{
+    var dirName = builder.Configuration.GetValue<string>(key) ?? value;
+    var dir = Path.Combine(Directory.GetCurrentDirectory(), dirName);
 
     app.UseStaticFiles(new StaticFileOptions
     {
@@ -77,5 +67,21 @@ foreach (var (key, value) in imageSizes)
     });
 }
 
+app.UseRouting();
+
+app.UseAuthentication(); // ⬅️ ОБОВ'ЯЗКОВО!
+app.UseAuthorization();
+
+// Маршрути
+app.MapAreaControllerRoute(
+    name: "MyAreaAdmin",
+    areaName: "Admin",
+    pattern: "admin/{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Main}/{action=Index}/{id?}");
+
 await app.SeedDataAsync();
+
 app.Run();

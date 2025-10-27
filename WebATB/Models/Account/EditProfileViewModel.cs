@@ -12,11 +12,6 @@ namespace WebATB.Models.Account
         [Display(Name = "Прізвище")]
         public string LastName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Email обов'язковий")]
-        [EmailAddress(ErrorMessage = "Невірний формат email")]
-        [Display(Name = "Email")]
-        public string Email { get; set; } = string.Empty;
-
         [Display(Name = "Нове фото профілю")]
         public IFormFile? Image { get; set; }
 

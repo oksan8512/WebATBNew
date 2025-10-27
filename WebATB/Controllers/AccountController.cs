@@ -135,7 +135,12 @@ public class AccountController(UserManager<UserEntity> userManager,
     public async Task<IActionResult> EditProfileView(EditProfileViewModel model)
     {
         if (!ModelState.IsValid)
+        {
+            // Повертаємо CurrentImage для коректного відображення
+            var currentUser = await userManager.GetUserAsync(User);
+            model.CurrentImage = currentUser?.Image;
             return View(model);
+        }
 
         var user = await userManager.GetUserAsync(User);
         if (user == null)
@@ -144,13 +149,22 @@ public class AccountController(UserManager<UserEntity> userManager,
             return RedirectToAction("Login");
         }
 
+        // Оновлюємо дані
         user.FirstName = model.FirstName;
         user.LastName = model.LastName;
 
+        // Обробка зображення
         if (model.Image != null && model.Image.Length > 0)
         {
             try
             {
+                // Видаляємо старе фото, якщо воно існує
+                if (!string.IsNullOrEmpty(user.Image))
+                {
+                    await imageService.DeleteImageAsync(user.Image);
+                }
+
+                // Зберігаємо нове фото
                 var imageResult = await imageService.SaveImageAsync(model.Image, "AvatarDir");
                 if (!string.IsNullOrEmpty(imageResult))
                 {
@@ -160,6 +174,7 @@ public class AccountController(UserManager<UserEntity> userManager,
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = $"Помилка завантаження фото: {ex.Message}";
+                model.CurrentImage = user.Image;
                 return View(model);
             }
         }
@@ -168,12 +183,17 @@ public class AccountController(UserManager<UserEntity> userManager,
         if (result.Succeeded)
         {
             TempData["SuccessMessage"] = "Профіль успішно оновлено";
+
+            // Оновлюємо claims для відображення змін у navbar без повторного логіну
+            await signInManager.RefreshSignInAsync(user);
+
             return RedirectToAction("EditProfileView");
         }
 
         foreach (var error in result.Errors)
             ModelState.AddModelError(string.Empty, error.Description);
 
+        model.CurrentImage = user.Image;
         return View(model);
     }
 

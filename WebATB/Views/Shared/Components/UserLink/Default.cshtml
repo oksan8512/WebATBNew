@@ -7,21 +7,16 @@
        role="button"
        data-bs-toggle="dropdown"
        aria-expanded="false">
-        @if (!string.IsNullOrEmpty(Model.Image) && Model.Image != "noimage.png")
-        {
-            <img src="/avatars/50_@Model.Image"
-                 alt="@Model.Name"
-                 class="rounded-circle me-2"
-                 style="width: 35px; height: 35px; object-fit: cover; border: 2px solid #fff;"
-                 onerror="this.onerror=null; this.src='/images/noimage.png';">
+        @{
+            var imagePath = !string.IsNullOrEmpty(Model.Image) && Model.Image != "noimage.png"
+            ? $"/avatars/50_{Model.Image}"
+            : "/images/noimage.png";
         }
-        else
-        {
-            <img src="/images/noimage.png"
-                 alt="Без фото"
-                 class="rounded-circle me-2"
-                 style="width: 35px; height: 35px; object-fit: cover; border: 2px solid #fff;">
-        }
+        <img src="@imagePath"
+             alt="@Model.Name"
+             class="rounded-circle me-2"
+             style="width: 35px; height: 35px; object-fit: cover; border: 2px solid #fff;"
+             onerror="this.onerror=null; this.src='/images/noimage.png';">
         <span class="text-white">@Model.Name</span>
     </a>
     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
