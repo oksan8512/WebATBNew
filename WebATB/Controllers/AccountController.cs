@@ -74,7 +74,7 @@ public class AccountController(UserManager<UserEntity> userManager,
                 return View(model);
             }
 
-            // Спроба входу
+            
             var result = await signInManager.PasswordSignInAsync(
                 user.UserName!,
                 model.Password,
