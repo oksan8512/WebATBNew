@@ -7,8 +7,8 @@
     var user = await UserManager.GetUserAsync(User);
     var roles = user is not null ? await UserManager.GetRolesAsync(user) : new List<string>();
 
-    <div class="card shadow-sm ">
-        <div class="card-body m-xxl-5 ">
+    <div class="card shadow-sm">
+        <div class="card-body m-xxl-5">
             <div class="d-flex flex-column flex-md-row gap-4">
                 <div class="text-center">
                     @if (!string.IsNullOrEmpty(user?.Image))
@@ -29,6 +29,15 @@
                              alt="Аватар відсутній" />
                     }
                     <div class="d-grid gap-2">
+                        @* 🔥 НОВИНКА: Кнопка переходу в адмін панель *@
+                        @if (roles.Contains("Admin"))
+                        {
+                            <a asp-area="Admin" asp-controller="Dashboards" asp-action="Index"
+                               class="btn btn-danger">
+                                <i class="bi bi-shield-lock"></i> Адмін панель
+                            </a>
+                        }
+
                         <a asp-action="EditProfileView" asp-controller="Account" class="btn btn-outline-primary">
                             <i class="bi bi-pencil"></i> Редагувати профіль
                         </a>
@@ -71,9 +80,22 @@
                             <div class="mt-1">
                                 @foreach (var role in roles)
                                 {
-                                    <span class="badge bg-primary me-1">@role</span>
+                                    var badgeClass = role == "Admin" ? "bg-danger" : "bg-primary";
+                                    var icon = role == "Admin" ? "bi-shield-lock" : "bi-person-badge";
+                                    <span class="badge @badgeClass me-1">
+                                        <i class="bi @icon"></i> @role
+                                    </span>
                                 }
                             </div>
+                        </div>
+                    }
+
+                    @* 🔥 Інформаційне повідомлення для адміністраторів *@
+                    @if (roles.Contains("Admin"))
+                    {
+                        <div class="alert alert-danger mt-3" role="alert">
+                            <i class="bi bi-shield-exclamation me-2"></i>
+                            <strong>Адміністратор:</strong> Ви маєте доступ до адмін панелі з розширеними можливостями управління сайтом.
                         </div>
                     }
                 </div>
