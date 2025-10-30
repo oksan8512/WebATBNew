@@ -24,6 +24,9 @@ public class UserItemVM
     [Display(Name = "Дата реєстрації")]
     public DateTime RegistrationDate { get; set; }
 
+    [Display(Name = "Заблокований")]
+    public bool IsLocked { get; set; }
+
     [Display(Name = "Ролі")]
     public List<string> Roles { get; set; } = new();
 

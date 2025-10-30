@@ -1,0 +1,239 @@
+﻿@model List<WebATB.Areas.Admin.Models.Users.UserItemVM>
+@{
+    ViewData["Title"] = "Користувачі";
+}
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-people-fill me-2"></i>
+                        Список користувачів
+                    </h5>
+                    <span class="badge bg-light text-dark">Всього: @Model.Count</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 60px;">Фото</th>
+                                    <th>Прізвище</th>
+                                    <th>Ім'я</th>
+                                    <th>Email</th>
+                                    <th>Ролі</th>
+                                    <th>Статус</th>
+                                    <th>Дата реєстрації</th>
+                                    <th style="width: 250px;" class="text-center">Дії</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in Model)
+                                {
+                                    <tr class="@(user.IsLocked ? "table-danger" : "")">
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(user.Image))
+                                            {
+                                                <img src="@user.Image" alt="@user.FullName"
+                                                     class="rounded-circle"
+                                                     style="width: 40px; height: 40px; object-fit: cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white"
+                                                     style="width: 40px; height: 40px;">
+                                                    <i class="bi bi-person-fill"></i>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td class="align-middle">
+                                            <strong>@user.LastName</strong>
+                                        </td>
+                                        <td class="align-middle">@user.FirstName</td>
+                                        <td class="align-middle">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span>@user.Email</span>
+                                                @if (user.EmailConfirmed)
+                                                {
+                                                    <i class="bi bi-check-circle-fill text-success"
+                                                       title="Email підтверджено"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-exclamation-circle-fill text-warning"
+                                                       title="Email не підтверджено"></i>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td class="align-middle">
+                                            @if (user.Roles.Any())
+                                            {
+                                                @foreach (var role in user.Roles)
+                                                {
+                                                    <span class="badge bg-@(role == "Admin" ? "danger" : "info") me-1">
+                                                        @role
+                                                    </span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">User</span>
+                                            }
+                                        </td>
+                                        <td class="align-middle">
+                                            @if (user.IsLocked)
+                                            {
+                                                <span class="badge bg-danger">
+                                                    <i class="bi bi-lock-fill me-1"></i>Заблокований
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-unlock-fill me-1"></i>Активний
+                                                </span>
+                                            }
+                                        </td>
+                                        <td class="align-middle">
+                                            <small class="text-muted">
+                                                @user.RegistrationDate.ToString("dd.MM.yyyy HH:mm")
+                                            </small>
+                                        </td>
+                                        <td class="align-middle">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                @* Призначити/зняти роль Admin *@
+                                                @if (user.Roles.Contains("Admin"))
+                                                {
+                                                    <form asp-action="ToggleRole" method="post" class="d-inline">
+                                                        <input type="hidden" name="userId" value="@user.Id" />
+                                                        <input type="hidden" name="roleName" value="Admin" />
+                                                        <button type="submit" class="btn btn-warning"
+                                                                title="Зняти роль Admin"
+                                                                onclick="return confirm('Зняти роль Admin?')">
+                                                            <i class="bi bi-person-dash"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <form asp-action="ToggleRole" method="post" class="d-inline">
+                                                        <input type="hidden" name="userId" value="@user.Id" />
+                                                        <input type="hidden" name="roleName" value="Admin" />
+                                                        <button type="submit" class="btn btn-success"
+                                                                title="Призначити Admin"
+                                                                onclick="return confirm('Призначити роль Admin?')">
+                                                            <i class="bi bi-person-plus"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+
+                                                @* Блокувати/Розблокувати *@
+                                                @if (user.IsLocked)
+                                                {
+                                                    <form asp-action="UnlockUser" method="post" class="d-inline">
+                                                        <input type="hidden" name="userId" value="@user.Id" />
+                                                        <button type="submit" class="btn btn-info"
+                                                                title="Розблокувати користувача">
+                                                            <i class="bi bi-unlock"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <form asp-action="LockUser" method="post" class="d-inline">
+                                                        <input type="hidden" name="userId" value="@user.Id" />
+                                                        <button type="submit" class="btn btn-secondary"
+                                                                title="Заблокувати користувача"
+                                                                onclick="return confirm('Ви впевнені, що хочете заблокувати користувача @user.FullName?')">
+                                                            <i class="bi bi-lock"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+
+                                                @* Видалити *@
+                                                <form asp-action="Delete" method="post" class="d-inline">
+                                                    <input type="hidden" name="id" value="@user.Id" />
+                                                    <button type="submit" class="btn btn-danger"
+                                                            title="Видалити користувача"
+                                                            onclick="return confirm('Ви впевнені, що хочете ВИДАЛИТИ користувача @user.FullName? Цю дію не можна скасувати!')">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-people display-1 text-muted"></i>
+                        <p class="text-muted mt-3">Користувачів поки немає</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Легенда -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title mb-3">
+                    <i class="bi bi-info-circle me-2"></i>Легенда кнопок:
+                </h6>
+                <div class="d-flex flex-wrap gap-3">
+                    <div>
+                        <button class="btn btn-success btn-sm" disabled>
+                            <i class="bi bi-person-plus"></i>
+                        </button>
+                        <small class="ms-2">Призначити Admin</small>
+                    </div>
+                    <div>
+                        <button class="btn btn-warning btn-sm" disabled>
+                            <i class="bi bi-person-dash"></i>
+                        </button>
+                        <small class="ms-2">Зняти роль Admin</small>
+                    </div>
+                    <div>
+                        <button class="btn btn-secondary btn-sm" disabled>
+                            <i class="bi bi-lock"></i>
+                        </button>
+                        <small class="ms-2">Заблокувати</small>
+                    </div>
+                    <div>
+                        <button class="btn btn-info btn-sm" disabled>
+                            <i class="bi bi-unlock"></i>
+                        </button>
+                        <small class="ms-2">Розблокувати</small>
+                    </div>
+                    <div>
+                        <button class="btn btn-danger btn-sm" disabled>
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <small class="ms-2">Видалити</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Автоматично приховувати повідомлення через 5 секунд
+        setTimeout(function () {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+    </script>
+}
